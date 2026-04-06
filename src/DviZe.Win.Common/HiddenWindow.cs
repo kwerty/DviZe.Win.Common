@@ -23,8 +23,8 @@ public sealed class HiddenWindow : IAsyncDisposable
         this.options = options;
         this.threadAccessor = threadAccessor;
         this.loggerFactory = loggerFactory;
-        sessionRunner = new(loggerFactory);
-        subscriptionRunner = new(loggerFactory);
+        sessionRunner = new RunSingle<HiddenWindowSession>(loggerFactory);
+        subscriptionRunner = new Runner<HiddenWindowSubscription>(loggerFactory);
     }
 
     public IntPtr? Hwnd
