@@ -20,7 +20,7 @@ internal sealed class HiddenWindowSubscription(uint? msg, Action<HiddenWindowEve
         handlerRegistrationId = HiddenWindowNativeExtensions.RegisterHandler(session.hwnd, msg, HandleHiddenWindowMessage);
     }
 
-    nint? HandleHiddenWindowMessage(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam)
+    IntPtr? HandleHiddenWindowMessage(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam)
     {
         var evt = new HiddenWindowEvent(hwnd, msg, wParam, lParam);
 

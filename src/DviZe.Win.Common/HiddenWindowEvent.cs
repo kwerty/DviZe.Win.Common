@@ -12,5 +12,5 @@ public sealed class HiddenWindowEvent(IntPtr hwnd, uint msg, IntPtr wParam, IntP
 
     public IntPtr LParam => lParam;
 
-    public nint? ReturnValue { get; set; }
+    public IntPtr? ReturnValue { get; set; }
 }

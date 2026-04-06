@@ -47,8 +47,10 @@ public interface IThreadAccessor
                 {
                     if (executionContext != null)
                     {
-                        ExecutionContext.Run(executionContext, _ => continuation(), state: null);
-                        executionContext.Dispose();
+                        using (executionContext)
+                        {
+                            ExecutionContext.Run(executionContext, _ => continuation(), state: null);
+                        }
                     }
                     else
                     {
