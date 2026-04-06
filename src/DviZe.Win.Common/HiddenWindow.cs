@@ -8,11 +8,11 @@ namespace Kwerty.DviZe.Win;
 
 public sealed class HiddenWindow : IAsyncDisposable
 {
-    readonly RunSingle<HiddenWindowSession> sessionRunner;
-    readonly Runner<HiddenWindowSubscription> subscriptionRunner;
     readonly HiddenWindowOptions options;
     readonly IThreadAccessor threadAccessor;
     readonly ILoggerFactory loggerFactory;
+    readonly RunSingle<HiddenWindowSession> sessionRunner;
+    readonly Runner<HiddenWindowSubscription> subscriptionRunner;
 
     public HiddenWindow(HiddenWindowOptions options, IThreadAccessor threadAccessor, ILoggerFactory loggerFactory)
     {
