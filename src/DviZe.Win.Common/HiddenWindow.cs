@@ -6,10 +6,26 @@ using System.Threading.Tasks;
 
 namespace Kwerty.DviZe.Win;
 
-public sealed class HiddenWindow(HiddenWindowOptions options, IThreadAccessor threadAccessor, ILoggerFactory loggerFactory) : IAsyncDisposable
+public sealed class HiddenWindow : IAsyncDisposable
 {
-    readonly RunSingle<HiddenWindowSession> sessionRunner = new(loggerFactory);
-    readonly Runner<HiddenWindowSubscription> subscriptionRunner = new(loggerFactory);
+    readonly RunSingle<HiddenWindowSession> sessionRunner;
+    readonly Runner<HiddenWindowSubscription> subscriptionRunner;
+    readonly HiddenWindowOptions options;
+    readonly IThreadAccessor threadAccessor;
+    readonly ILoggerFactory loggerFactory;
+
+    public HiddenWindow(HiddenWindowOptions options, IThreadAccessor threadAccessor, ILoggerFactory loggerFactory)
+    {
+        ArgumentNullException.ThrowIfNull(options, nameof(options));
+        ArgumentNullException.ThrowIfNull(threadAccessor, nameof(threadAccessor));
+        ArgumentNullException.ThrowIfNull(loggerFactory, nameof(loggerFactory));
+
+        this.options = options;
+        this.threadAccessor = threadAccessor;
+        this.loggerFactory = loggerFactory;
+        sessionRunner = new(loggerFactory);
+        subscriptionRunner = new(loggerFactory);
+    }
 
     public IntPtr? Hwnd
     {
