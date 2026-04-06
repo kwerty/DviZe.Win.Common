@@ -1,6 +1,6 @@
 # DviZe.Win.Common
 
-A high-performance native Win32 message pump for console and non-UI applications, with seamless `async/await` integration.
+Provides a high-performance native Win32 message pump for console and non-UI applications, with seamless `async/await` integration.
 
 Engineered for low latency. Well-suited for use with keyboard and mouse hooks, where every tick counts.
 
