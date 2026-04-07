@@ -108,7 +108,7 @@ UInt32 HiddenWindowNativeExtensions::RegisterHandler(IntPtr hwnd, Nullable<UInt3
 	auto hwndNative = reinterpret_cast<HWND>(hwnd.ToPointer());
 	auto msgNative = msg.HasValue ? std::optional<UINT>(msg.Value) : std::nullopt;
 
-	auto handlerId = ++nextHandlerId;
+	auto handlerId = nextHandlerId++;
 
 	handlers[handlerId] = HiddenWindowHandler
 	{
