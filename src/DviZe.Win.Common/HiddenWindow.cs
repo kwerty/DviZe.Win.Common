@@ -31,7 +31,7 @@ public sealed class HiddenWindow : IAsyncDisposable
     {
         get
         {
-            _ = sessionRunner.Provider.TryGet(out var session);
+            sessionRunner.Provider.TryGet(out var session);
             return session?.hwnd;
         }
     }
