@@ -6,7 +6,6 @@
 #include <msclr/marshal_cppstd.h>
 #include <optional>
 #include <string>
-#include <utility>
 #include <vector>
 #include <Windows.h>
 #include <unordered_map>
@@ -15,48 +14,58 @@ using namespace msclr;
 using namespace System;
 using namespace Kwerty::DviZe::Win;
 
-struct HiddenWindowHandler
-{
-	HWND hwnd;
-	std::optional<UINT> msg;
-	gcroot<HiddenWindowCallback^> callback;
-};
-
 namespace
 {
+	struct HiddenWindowHandler
+	{
+		HWND hwnd;
+		std::optional<UINT> msg;
+		gcroot<HiddenWindowCallback^> callback;
+	};
+
 	unsigned int nextHandlerId;
 	std::unordered_map<unsigned int, HiddenWindowHandler> handlers;
 	std::vector<const HiddenWindowHandler*> fastIter;
+}
 
-	LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+static LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	for (const auto* handler : fastIter)
 	{
-		for (const auto* handler : fastIter)
+		if (handler->hwnd != hWnd)
 		{
-			if (handler->hwnd != hWnd)
-			{
-				continue;
-			}
-
-			if (handler->msg.has_value()
-				&& handler->msg.value() != msg)
-			{
-				continue;
-			}
-
-			auto result = handler->callback->Invoke(
-				IntPtr((void*)hWnd),
-				msg,
-				IntPtr((void*)wParam),
-				IntPtr((void*)lParam)
-			);
-
-			if (result.HasValue)
-			{
-				return (LRESULT)result.Value.ToPointer();
-			}
+			continue;
 		}
 
-		return DefWindowProc(hWnd, msg, wParam, lParam);
+		if (handler->msg.has_value()
+			&& handler->msg.value() != msg)
+		{
+			continue;
+		}
+
+		auto result = handler->callback->Invoke(
+			IntPtr((void*)hWnd),
+			msg,
+			IntPtr((void*)wParam),
+			IntPtr((void*)lParam)
+		);
+
+		if (result.HasValue)
+		{
+			return (LRESULT)result.Value.ToPointer();
+		}
+	}
+
+	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+static void RebuildFastIter()
+{
+	fastIter.clear();
+
+	for (const auto& [_, handler] : handlers)
+	{
+		fastIter.push_back(&handler);
 	}
 }
 
@@ -117,17 +126,14 @@ UInt32 HiddenWindowNativeExtensions::RegisterHandler(IntPtr hwnd, Nullable<UInt3
 		.callback = gcroot<HiddenWindowCallback^>(callback)
 	};
 
-	fastIter.push_back(&handlers[handlerId]);
+	RebuildFastIter();
 
 	return handlerId;
 }
 
 void HiddenWindowNativeExtensions::UnregisterHandler(UInt32 id)
 {
-	auto pair = handlers.find(id);
-	if (pair != handlers.end())
-	{
-		std::erase(fastIter, &pair->second);
-		handlers.erase(pair);
-	}
+	handlers.erase(id);
+	
+	RebuildFastIter();
 }
