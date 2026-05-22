@@ -17,16 +17,7 @@ internal sealed class HiddenWindowSubscription(uint? msg, Action<HiddenWindowEve
 
         await threadAccessor.UIThread;
 
-        handlerRegistrationId = HiddenWindowNativeExtensions.RegisterHandler(session.hwnd, msg, HandleHiddenWindowMessage);
-    }
-
-    IntPtr? HandleHiddenWindowMessage(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam)
-    {
-        var evt = new HiddenWindowEvent(hwnd, msg, wParam, lParam);
-
-        callback(evt);
-
-        return evt.ReturnValue;
+        handlerRegistrationId = HiddenWindowNativeExtensions.RegisterHandler(session.hwnd, msg, callback);
     }
 
     protected override async Task OnStoppingAsync()

@@ -19,7 +19,7 @@ namespace
 	{
 		HWND hwnd;
 		std::optional<UINT> msg;
-		gcroot<HiddenWindowCallback^> callback;
+		gcroot<Action<HiddenWindowEvent^>^> callback;
 	};
 
 	unsigned int nextHandlerId;
@@ -42,16 +42,18 @@ static LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			continue;
 		}
 
-		auto result = handler->callback->Invoke(
+		auto evt = gcnew HiddenWindowEvent(
 			IntPtr((void*)hWnd),
 			msg,
 			IntPtr((void*)wParam),
 			IntPtr((void*)lParam)
 		);
 
-		if (result.HasValue)
+		handler->callback->Invoke(evt);
+
+		if (evt->ReturnValue.HasValue)
 		{
-			return (LRESULT)result.Value.ToPointer();
+			return (LRESULT)evt->ReturnValue.Value.ToPointer();
 		}
 	}
 
@@ -116,7 +118,7 @@ namespace Kwerty::DviZe::Win
 			}
 		}
 
-		static UInt32 RegisterHandler(IntPtr hwnd, Nullable<UInt32> msg, HiddenWindowCallback^ callback)
+		static UInt32 RegisterHandler(IntPtr hwnd, Nullable<UInt32> msg, Action<HiddenWindowEvent^>^ callback)
 		{
 			auto hwndNative = reinterpret_cast<HWND>(hwnd.ToPointer());
 			auto msgNative = msg.HasValue ? std::optional<UINT>(msg.Value) : std::nullopt;
@@ -127,7 +129,7 @@ namespace Kwerty::DviZe::Win
 			{
 				.hwnd = hwndNative,
 				.msg = msgNative,
-				.callback = gcroot<HiddenWindowCallback^>(callback)
+				.callback = gcroot<Action<HiddenWindowEvent^>^>(callback)
 			};
 
 			RebuildFastIter();
