@@ -62,7 +62,7 @@ static LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 static void RebuildFastIter()
 {
-	fastIter.clear();
+	fastIter = {};
 
 	for (const auto& [_, handler] : handlers)
 	{
