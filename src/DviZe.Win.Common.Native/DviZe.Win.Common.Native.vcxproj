@@ -79,9 +79,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="HiddenWindowNativeExtensions.h" />
     <ClInclude Include="main.h" />
-    <ClInclude Include="MessagePumpNativeExtensions.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>

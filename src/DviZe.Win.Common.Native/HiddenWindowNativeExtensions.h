@@ -4,8 +4,6 @@ using namespace System;
 
 namespace Kwerty::DviZe::Win
 {
-	private delegate Nullable<IntPtr> HiddenWindowCallback(IntPtr hwnd, UInt32 msg, IntPtr wParam, IntPtr lParam);
-
 	private ref class HiddenWindowNativeExtensions abstract sealed
 	{
 	public:

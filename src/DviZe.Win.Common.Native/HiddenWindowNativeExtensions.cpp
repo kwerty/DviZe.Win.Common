@@ -1,5 +1,4 @@
 #include "pch.h"
-#include "HiddenWindowNativeExtensions.h"
 #include "main.h"
 #include <msclr/gcroot.h>
 #include <msclr/marshal.h>
@@ -69,71 +68,78 @@ static void RebuildFastIter()
 	}
 }
 
-IntPtr HiddenWindowNativeExtensions::CreateHiddenWindow(String^ className, String^ windowName)
+namespace Kwerty::DviZe::Win
 {
-	auto classNameNative = msclr::interop::marshal_as<std::wstring>(className);
-	auto windowNameNative = msclr::interop::marshal_as<std::wstring>(windowName);
-
-	auto wndClass = WNDCLASSEX
+	public ref class HiddenWindowNativeExtensions abstract sealed
 	{
-		.cbSize = sizeof(WNDCLASSEX),
-		.lpfnWndProc = &WndProc,
-		.lpszClassName = classNameNative.c_str(),
+	public:
+		static IntPtr CreateHiddenWindow(String^ className, String^ windowName)
+		{
+			auto classNameNative = msclr::interop::marshal_as<std::wstring>(className);
+			auto windowNameNative = msclr::interop::marshal_as<std::wstring>(windowName);
+
+			auto wndClass = WNDCLASSEX
+			{
+				.cbSize = sizeof(WNDCLASSEX),
+				.lpfnWndProc = &WndProc,
+				.lpszClassName = classNameNative.c_str(),
+			};
+
+			auto classHandle = RegisterClassEx(&wndClass);
+			if (classHandle == 0)
+			{
+				throw Win32ExceptionExtensions::FromError(NAMEOF(RegisterClassEx), GetLastError());
+			}
+
+			auto windowHandle = CreateWindowEx(0, classNameNative.c_str(), windowNameNative.c_str(), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL);
+			if (windowHandle == NULL)
+			{
+				throw Win32ExceptionExtensions::FromError(NAMEOF(CreateWindowEx), GetLastError());
+			}
+
+			return IntPtr((void*)windowHandle);
+		}
+
+		static void DestroyHiddenWindow(IntPtr hwnd, String^ className)
+		{
+			auto hwndNative = reinterpret_cast<HWND>(hwnd.ToPointer());
+			auto classNameNative = msclr::interop::marshal_as<std::wstring>(className);
+
+			if (!DestroyWindow(hwndNative))
+			{
+				throw Win32ExceptionExtensions::FromError(NAMEOF(DestroyWindow), GetLastError());
+			}
+
+			if (!UnregisterClass(classNameNative.c_str(), NULL))
+			{
+				throw Win32ExceptionExtensions::FromError(NAMEOF(UnregisterClass), GetLastError());
+			}
+		}
+
+		static UInt32 RegisterHandler(IntPtr hwnd, Nullable<UInt32> msg, HiddenWindowCallback^ callback)
+		{
+			auto hwndNative = reinterpret_cast<HWND>(hwnd.ToPointer());
+			auto msgNative = msg.HasValue ? std::optional<UINT>(msg.Value) : std::nullopt;
+
+			auto handlerId = nextHandlerId++;
+
+			handlers[handlerId] = HiddenWindowHandler
+			{
+				.hwnd = hwndNative,
+				.msg = msgNative,
+				.callback = gcroot<HiddenWindowCallback^>(callback)
+			};
+
+			RebuildFastIter();
+
+			return handlerId;
+		}
+
+		static void UnregisterHandler(UInt32 id)
+		{
+			handlers.erase(id);
+
+			RebuildFastIter();
+		}
 	};
-
-	auto classHandle = RegisterClassEx(&wndClass);
-	if (classHandle == 0)
-	{
-		throw Win32ExceptionExtensions::FromError(NAMEOF(RegisterClassEx), GetLastError());
-	}
-
-	auto windowHandle = CreateWindowEx(0, classNameNative.c_str(), windowNameNative.c_str(), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL);
-	if (windowHandle == NULL)
-	{
-		throw Win32ExceptionExtensions::FromError(NAMEOF(CreateWindowEx), GetLastError());
-	}
-
-	return IntPtr((void*)windowHandle);
-}
-
-void HiddenWindowNativeExtensions::DestroyHiddenWindow(IntPtr hwnd, String^ className)
-{
-	auto hwndNative = reinterpret_cast<HWND>(hwnd.ToPointer());
-	auto classNameNative = msclr::interop::marshal_as<std::wstring>(className);
-
-	if (!DestroyWindow(hwndNative))
-	{
-		throw Win32ExceptionExtensions::FromError(NAMEOF(DestroyWindow), GetLastError());
-	}
-
-	if (!UnregisterClass(classNameNative.c_str(), NULL))
-	{
-		throw Win32ExceptionExtensions::FromError(NAMEOF(UnregisterClass), GetLastError());
-	}
-}
-
-UInt32 HiddenWindowNativeExtensions::RegisterHandler(IntPtr hwnd, Nullable<UInt32> msg, HiddenWindowCallback^ callback)
-{
-	auto hwndNative = reinterpret_cast<HWND>(hwnd.ToPointer());
-	auto msgNative = msg.HasValue ? std::optional<UINT>(msg.Value) : std::nullopt;
-
-	auto handlerId = nextHandlerId++;
-
-	handlers[handlerId] = HiddenWindowHandler
-	{
-		.hwnd = hwndNative,
-		.msg = msgNative,
-		.callback = gcroot<HiddenWindowCallback^>(callback)
-	};
-
-	RebuildFastIter();
-
-	return handlerId;
-}
-
-void HiddenWindowNativeExtensions::UnregisterHandler(UInt32 id)
-{
-	handlers.erase(id);
-	
-	RebuildFastIter();
 }
