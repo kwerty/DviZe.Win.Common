@@ -9,9 +9,9 @@
 #include <Windows.h>
 #include <unordered_map>
 
+using namespace Kwerty::DviZe::Win;
 using namespace msclr;
 using namespace System;
-using namespace Kwerty::DviZe::Win;
 
 namespace
 {
