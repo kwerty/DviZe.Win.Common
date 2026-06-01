@@ -2,56 +2,54 @@
 
 #define NAMEOF(name) #name
 
-using namespace System;
-
 namespace Kwerty::DviZe::Win
 {
 	public ref class HiddenWindowEvent sealed
 	{
 	private:
-		initonly IntPtr hwnd;
-		initonly UInt32 msg;
-		initonly IntPtr wParam;
-		initonly IntPtr lParam;
+		initonly System::IntPtr hwnd;
+		initonly System::UInt32 msg;
+		initonly System::IntPtr wParam;
+		initonly System::IntPtr lParam;
 
 	public:
-		HiddenWindowEvent(IntPtr hwnd, UInt32 msg, IntPtr wParam, IntPtr lParam)
+		HiddenWindowEvent(System::IntPtr hwnd, System::UInt32 msg, System::IntPtr wParam, System::IntPtr lParam)
 			: hwnd(hwnd), msg(msg), wParam(wParam), lParam(lParam)
 		{
 		}
 
-		property IntPtr Hwnd
+		property System::IntPtr Hwnd
 		{
-			IntPtr get()
+			System::IntPtr get()
 			{
 				return hwnd;
 			}
 		}
 
-		property UInt32 Msg
+		property System::UInt32 Msg
 		{
-			UInt32 get()
+			System::UInt32 get()
 			{
 				return msg;
 			}
 		}
 
-		property IntPtr WParam
+		property System::IntPtr WParam
 		{
-			IntPtr get()
+			System::IntPtr get()
 			{
 				return wParam;
 			}
 		}
 
-		property IntPtr LParam
+		property System::IntPtr LParam
 		{
-			IntPtr get()
+			System::IntPtr get()
 			{
 				return lParam;
 			}
 		}
 
-		property Nullable<IntPtr> ReturnValue;
+		property System::Nullable<System::IntPtr> ReturnValue;
 	};
 }
