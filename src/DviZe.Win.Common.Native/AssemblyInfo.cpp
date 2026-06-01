@@ -17,3 +17,5 @@ using namespace System::Runtime::InteropServices;
 [assembly:AssemblyVersionAttribute(L"1.0.*")];
 
 [assembly:ComVisible(false)];
+
+[assembly:InternalsVisibleTo("DviZe.Win.Common")];

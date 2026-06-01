@@ -9,7 +9,7 @@ namespace
 
 namespace Kwerty::DviZe::Win
 {
-    public ref class MessagePumpNativeExtensions abstract sealed
+    private ref class MessagePumpNativeExtensions abstract sealed
     {
     public:
         static void SetUIThread()

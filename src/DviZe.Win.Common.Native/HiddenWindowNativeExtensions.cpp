@@ -72,7 +72,7 @@ static void RebuildFastIter()
 
 namespace Kwerty::DviZe::Win
 {
-	public ref class HiddenWindowNativeExtensions abstract sealed
+	private ref class HiddenWindowNativeExtensions abstract sealed
 	{
 	public:
 		static IntPtr CreateHiddenWindow(String^ className, String^ windowName)
