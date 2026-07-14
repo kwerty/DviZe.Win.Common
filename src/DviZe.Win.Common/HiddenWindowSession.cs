@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Kwerty.DviZe.Win;
@@ -11,6 +12,8 @@ internal sealed class HiddenWindowSession(HiddenWindowOptions options, IThreadAc
     const int ERROR_CLASS_ALREADY_EXISTS = 1410;
     readonly ILogger logger = loggerFactory.CreateLogger<HiddenWindowSession>();
     internal IntPtr hwnd;
+
+    internal CancellationToken StoppingToken => Context.StoppingToken;
 
     protected override async Task OnStartingAsync(WorkerStartingContext startingContext)
     {

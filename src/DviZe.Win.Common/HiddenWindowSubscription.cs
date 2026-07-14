@@ -18,6 +18,9 @@ internal sealed class HiddenWindowSubscription(uint? msg, Action<HiddenWindowEve
         await threadAccessor.UIThread;
 
         handlerRegistrationId = HiddenWindowNativeExtensions.RegisterHandler(session.hwnd, msg, callback);
+
+        startingContext.Complete();
+        session.StoppingToken.Register(() => Context.TryStop());
     }
 
     protected override async Task OnStoppingAsync()
